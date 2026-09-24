@@ -55,7 +55,7 @@ class UniquePtr
 template <typename T, typename... Args>
 UniquePtr<T> MakeUnique(Args&&... args)  
 {
-    T* ptr = new T(args...);
+    T* ptr = new T(std::forward<Args>(args)...);
     UniquePtr<T> pointer(ptr);
     return pointer;
 }
