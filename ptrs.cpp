@@ -32,11 +32,11 @@ class UniquePtr
         if (!data) throw std::runtime_error("Data is void!");
         return data;
     }
-    T* Get() const 
+    T* Get() const noexcept
     {
         return data;
     }
-    T* Release() 
+    T* Release() noexcept
     {
         T* ptr = data;
         data = nullptr;
@@ -55,9 +55,7 @@ class UniquePtr
 template <typename T, typename... Args>
 UniquePtr<T> MakeUnique(Args&&... args)  
 {
-    T* ptr = new T(std::forward<Args>(args)...);
-    UniquePtr<T> pointer(ptr);
-    return pointer;
+    return new T(std::forward<Args>(args)...);
 }
  
 template <typename T>
@@ -99,11 +97,11 @@ class SharedPtr
         if (!this->data) throw std::runtime_error("Data is void!");
         return *data;
     }
-    T* operator->() const 
+    T* operator->() const noexcept
     {
         return this->data;
     }
-    T* Get() const 
+    T* Get() const noexcept
     {
         return this->data;
     }
@@ -125,9 +123,7 @@ class SharedPtr
 template <typename T, typename... Args>
 SharedPtr<T> MakeShared(Args&&... args)
 {
-    T* ptr = new T(std::forward<Args>(args)...);
-    SharedPtr<T> pointer = ptr;
-    return pointer;
+    return new T(std::forward<Args>(args)...);
 }
 
 template <typename T>
@@ -143,7 +139,7 @@ class UniquePtrArray
     UniquePtrArray(UniquePtrArray&& other) noexcept : data(other.data) { other.data = nullptr; }
 
     UniquePtrArray& operator=(const UniquePtrArray& other) = delete;
-    UniquePtrArray& operator=(UniquePtrArray&& other) 
+    UniquePtrArray& operator=(UniquePtrArray&& other) noexcept
     {
         if (this == &other) return *this;
         delete[] data;
@@ -155,17 +151,17 @@ class UniquePtrArray
     { 
         return data[i]; 
     }
-    T* Get() const  
+    T* Get() const noexcept 
     { 
         return data; 
     }
-    T* Release() 
+    T* Release() noexcept
     {
         T* ptr = data;
         data = nullptr;
         return ptr;
     }
-    void Reset(T* p = nullptr) 
+    void Reset(T* p = nullptr) noexcept
     {
         if (data != p) 
         { 
@@ -186,12 +182,13 @@ UniquePtrArray<T> MakeUniqueArray(std::size_t n)
 }
 
 template <typename T>
-class SharedPtrArray
+class SharedPtrArray//class SharedPtr<T[]>
 {
     private:
     T* data;
     std::size_t* referenceCount;
-    void ReleaseRef() 
+
+    void ReleaseRef() noexcept
     {
         if (referenceCount && --(*referenceCount) == 0)
         {
@@ -209,7 +206,7 @@ class SharedPtrArray
     {
         if (referenceCount) (*referenceCount)++;
     }
-    SharedPtrArray(SharedPtrArray&& other) : data(other.data), referenceCount(other.referenceCount)
+    SharedPtrArray(SharedPtrArray&& other) noexcept : data(other.data), referenceCount(other.referenceCount)
     {
         other.data = nullptr;
         other.referenceCount = nullptr;
@@ -223,7 +220,7 @@ class SharedPtrArray
         if (referenceCount) (*referenceCount)++;
         return *this;
     }
-    SharedPtrArray& operator=(SharedPtrArray&& other) 
+    SharedPtrArray& operator=(SharedPtrArray&& other) noexcept
     {
         if (this == &other) return *this;
         ReleaseRef();
@@ -237,11 +234,11 @@ class SharedPtrArray
     { 
         return data[i]; 
     }
-    T* Get() const  
+    T* Get() const noexcept 
     { 
         return data; 
     }
-    std::size_t UseCount() const 
+    std::size_t UseCount() const noexcept
     {
         return referenceCount ? *referenceCount : 0;
     }
