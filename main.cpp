@@ -22,7 +22,7 @@ struct Row {int n; double raw; double StdUnique; double MyUnique; double StdShar
 
 Row run_benchmark(int N)
 {
-    Row r{};
+    Row r {};
     r.n = N;
 
     r.raw = measure_ms([N] {
