@@ -18,15 +18,7 @@ double measure_ms(Fn&& fn)
     return Ms(end - start).count();
 }
 
-struct Row
-{
-    int n;
-    double raw;
-    double stdUnique;
-    double myUnique;
-    double stdShared;
-    double myShared;
-};
+struct Row {int n; double raw; double StdUnique; double MyUnique; double StdShared; double MyShared;};
 
 Row run_benchmark(int N)
 {
@@ -39,22 +31,22 @@ Row run_benchmark(int N)
         for (std::size_t i = 0; i < v.size(); ++i) delete v[i];
     });
 
-    r.stdUnique = measure_ms([N] {
+    r.StdUnique = measure_ms([N] {
         MyVector<std::unique_ptr<int>> v;
         for (int i = 0; i < N; ++i) v.push_back(std::make_unique<int>(i));
     });
 
-    r.myUnique = measure_ms([N] {
+    r.MyUnique = measure_ms([N] {
         MyVector<UniquePtr<int>> v;
         for (int i = 0; i < N; ++i) v.push_back(MakeUnique<int>(i));
     });
 
-    r.stdShared = measure_ms([N] {
+    r.StdShared = measure_ms([N] {
         MyVector<std::shared_ptr<int>> v;
         for (int i = 0; i < N; ++i) v.push_back(std::make_shared<int>(i));
     });
 
-    r.myShared = measure_ms([N] {
+    r.MyShared = measure_ms([N] {
         MyVector<SharedPtr<int>> v;
         for (int i = 0; i < N; ++i) v.push_back(MakeShared<int>(i));
     });
@@ -72,10 +64,10 @@ void print_row(const Row& r)
 {
     std::cout << "| " << r.n
               << " | " << std::fixed << std::setprecision(4) << r.raw
-              << " | " << r.stdUnique
-              << " | " << r.myUnique
-              << " | " << r.stdShared
-              << " | " << r.myShared
+              << " | " << r.StdUnique
+              << " | " << r.MyUnique
+              << " | " << r.StdShared
+              << " | " << r.MyShared
               << " |\n";
 }
 
@@ -83,7 +75,7 @@ int main()
 {
     print_header();
 
-    for (int N : {1000, 10000, 100000})
+    for (int N : {1000, 10000, 100000, 1000000})
     {
         Row r = run_benchmark(N);
         print_row(r);
